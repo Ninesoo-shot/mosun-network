@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode, quote_plus, unquote
 import requests
+import serial
 
 url = 'https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty'
 queryParams = '?' + urlencode({quote_plus('serviceKey'):
@@ -24,3 +25,22 @@ for item in data:
     print(datatime.get_text())
     print(pm25value.get_text())
 
+port = '/dev/ttyACM0'
+brate = 9600
+
+seri = serial.Serial(port, baudrate = brate, timeout = None)
+print(seri.name)
+
+seri.write(b'\x0101')
+
+a=1
+while a:
+    if seri.in_waiting != 0 :
+        content = seri.readline()
+        print(content.decode())
+        a=0
+
+if float(content.decode()) < float(pm25value.get_text()):
+        print("close door")
+else:
+        print("open door")
