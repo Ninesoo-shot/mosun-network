@@ -17,12 +17,12 @@ implementation
         TestC.RadioControl -> AMC;
         TestC.RadioSend -> AMSC;
 
-        components new SensirionSht11C() as SHT11Ch0C;
+        components new SensirionSht11C() as Sht11Ch0C;
         TestC.Temp -> Sht11Ch0C.Temperature;
         TestC.Humi -> Sht11Ch0C.Humidity;
 
-        components new llluAdcC() as lllu;
-        TestC.lllu -> lllu;
+        components new IlluAdcC() as Illu;
+        TestC.Illu -> Illu;
 
         components BatteryC;
         TestC.Battery -> BatteryC;

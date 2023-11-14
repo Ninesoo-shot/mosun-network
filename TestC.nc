@@ -10,7 +10,7 @@ module TestC
 
                 interface Read<uint16_t> as Temp;
                 interface Read<uint16_t> as Humi;
-                interface Read<uint16_t> as lllu;
+                interface Read<uint16_t> as Illu;
 
                 interface Battery;
         }
@@ -73,9 +73,9 @@ implementation
 
         task void radioOff();
         void sendDone(){
-                call Leds.led00ff();
-                call Leds.led10ff();
-                call Leds.led20ff();
+                call Leds.led0Off();
+                call Leds.led1Off();
+                call Leds.led2Off();
                 post radioOff();
         }
 
@@ -89,32 +89,33 @@ implementation
         }
 
         void stopDone(){
-                task void readTask(){
-                        switch(step) {
-                                case 0:
-                                        call Temp.read(); break;
-                                case 1:
-                                        call Humi.read(); break;
-                                case 2:
-                                        call lllu.read(); break;
-                                default:
-                                        testMsg->battery = call Battery.getVoltage();
-                                        post sendTask();
-                                        break;
-                                }
-                        step += 1;
-                }
-
-                event void Temp.readDone(error_t error, uint16_t val){
-                        testMsg->Temp = error == SUCCESS ? val : 0xFFFA;
-                        post readTask();
-                }
-                event void Humi.readDone(error_t error, uint16_t val){
-                        testMsg->Humi = error == SUCCESS ? Val : 0xFFFB;
-                        post readTask();
-                }
-                event void lllu.readDone(error_t error, uint16_t val){
-                        testMsg->lllu = error == SUCCESS ? val : 0xFFFC;
-                        post readTask();
-                }
         }
+        task void readTask(){
+                switch(step) {
+                        case 0:
+                                call Temp.read(); break;
+                        case 1:
+                                call Humi.read(); break;
+                        case 2:
+                                call Illu.read(); break;
+                        default:
+                                testMsg->battery = call Battery.getVoltage();
+                        post sendTask();
+                                break;
+                }
+                step += 1;
+            }
+
+            event void Temp.readDone(error_t error, uint16_t val){
+                    testMsg->Temp = error == SUCCESS ? val : 0xFFFA;
+                    post readTask();
+            }
+            event void Humi.readDone(error_t error, uint16_t val){
+                    testMsg->Humi = error == SUCCESS ? val : 0xFFFB;
+                    post readTask();
+            }
+            event void Illu.readDone(error_t error, uint16_t val){
+                    testMsg->Illu = error == SUCCESS ? val : 0xFFFC;
+                    post readTask();
+            }
+    }
